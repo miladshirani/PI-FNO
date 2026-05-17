@@ -99,7 +99,7 @@ $$\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{CE}} + \lambda_1 \mathcal{L}_{
 | Loss Term | Formula | Physiological Meaning |
 |-----------|---------|----------------------|
 | **Cross-Entropy** | $-\frac{1}{B}\sum_b \log p_{y_b}$ | Standard classification objective |
-| **Periodicity** | $1 - \frac{\sum_{\xi \in \mathcal{B}_\text{HR}} P(\xi)}{\sum_\xi P(\xi)}$ | PCG energy should concentrate at heart rate fundamental + harmonics (1–5.3 Hz) |
+| **Periodicity** | $$1 - \frac{\sum_{\xi \in \mathcal{B}_\text{HR}} P(\xi)}{\sum_\xi P(\xi)}$$ | PCG energy should concentrate at heart rate fundamental + harmonics (1–5.3 Hz) |
 | **Freq. Hierarchy** | $\frac{1}{B}\sum_b \text{ReLU}(E_{S2}^{(b)} - E_{S1}^{(b)})$ | S1 energy ≥ S2 energy — a universal physiological constraint, enforced as a hinge loss |
 
 The hinge form of the frequency hierarchy loss applies **zero gradient** when the constraint $E_{S1} \geq E_{S2}$ is satisfied, and a linear penalty otherwise — directly analogous to inequality constraint enforcement in mechanics.
