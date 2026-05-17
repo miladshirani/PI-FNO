@@ -274,3 +274,18 @@ If you use this code or dataset in your research, please cite:
 ## License
 
 This project is released under the MIT License.
+
+
+---
+
+## Data Source
+
+The PCG dataset used in this project is sourced from the repository of
+[Yaseen Khan et al.](https://github.com/yaseen21khan/Classification-of-Heart-Sound-Signal-Using-Multiple-Features-)
+and is associated with the following publication:
+
+> Kwon, S. "Classification of Heart Sound Signal Using Multiple Features."
+> *Applied Sciences* 8(12), 2344 (2018).
+> DOI: [10.3390/app8122344](https://doi.org/10.3390/app8122344)
+
+We gratefully acknowledge the authors for making this dataset publicly available.
