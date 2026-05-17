@@ -194,6 +194,8 @@ Duration statistics of the raw recordings:
 │   ├── confusion_matrices.png
 │   ├── learned_freq_mask.png
 │   └── tsne_embeddings.png
+├── Docs/
+│   └── pifno_cardiac_lecture_notes.pdf
 ├── heart_sound_fno_classifier.ipynb   # Main notebook (Google Colab)
 └── README.md
 ```
