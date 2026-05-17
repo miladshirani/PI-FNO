@@ -1,7 +1,7 @@
 # 🫀 PI-FNO: Physics-Informed Fourier Neural Operator for Cardiac Disease Detection
 
 <p align="center">
-  <img src="Figures/learned_freq_mask.png" alt="Learned Physiological Frequency Mask" width="80%"/>
+  <img src="Results/learned_freq_mask.png" alt="Learned Physiological Frequency Mask" width="80%"/>
   <br>
   <em>Learned physiological frequency mask: the FNO autonomously recovers S1 (25–45 Hz) and S2 (50–70 Hz) cardiac sound bands from data.</em>
 </p>
@@ -111,7 +111,7 @@ The hinge form of the frequency hierarchy loss applies **zero gradient** when th
 ### Training Dynamics
 
 <p align="center">
-  <img src="Figures/training_curves.png" alt="Training Curves" width="90%"/>
+  <img src="Results/training_curves.png" alt="Training Curves" width="90%"/>
   <br>
   <em>Left: accuracy curves. Center: total loss. Right: FNO loss component breakdown (CE, periodicity, frequency hierarchy).</em>
 </p>
@@ -126,7 +126,7 @@ Both models achieve **97.3% test accuracy** on 150 held-out recordings (N = 1000
 ### Confusion Matrices
 
 <p align="center">
-  <img src="Figures/confusion_matrices.png" alt="Confusion Matrices" width="85%"/>
+  <img src="Results/confusion_matrices.png" alt="Confusion Matrices" width="85%"/>
   <br>
   <em>Normalized confusion matrices for FNO (left) and CNN baseline (right) on the test set.</em>
 </p>
@@ -147,7 +147,7 @@ MS achieves perfect classification (F1 = 1.00). MR has the lowest precision (0.8
 ### Learned Physiological Frequency Mask
 
 <p align="center">
-  <img src="Figures/learned_freq_mask.png" alt="Learned Frequency Mask" width="75%"/>
+  <img src="Results/learned_freq_mask.png" alt="Learned Frequency Mask" width="75%"/>
   <br>
   <em>Post-training mask weights per Fourier mode. The model autonomously recovers the physiological S1 (blue) and S2 (red) frequency bands from data, while also discovering additional discriminative modes beyond the initialization prior.</em>
 </p>
@@ -157,7 +157,7 @@ After training, the mask weights confirm the physiological prior: S1 and S2 band
 ### t-SNE Latent Space
 
 <p align="center">
-  <img src="Figures/tsne_embeddings.png" alt="t-SNE Embeddings" width="60%"/>
+  <img src="Results/tsne_embeddings.png" alt="t-SNE Embeddings" width="60%"/>
   <br>
   <em>t-SNE projection of the 64-dimensional FNO latent embeddings on the test set. Well-separated clusters indicate the model has learned class-discriminative representations.</em>
 </p>
@@ -189,7 +189,7 @@ Duration statistics of the raw recordings:
 │   ├── MS_New/          # Mitral Stenosis recordings
 │   ├── MVP_New/         # Mitral Valve Prolapse recordings
 │   └── N_New/           # Normal recordings
-├── Figures/
+├── Results/
 │   ├── training_curves.png
 │   ├── confusion_matrices.png
 │   ├── learned_freq_mask.png
