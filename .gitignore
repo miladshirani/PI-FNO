@@ -1,0 +1,25 @@
+# Model checkpoints
+checkpoints/
+*.pt
+*.pth
+
+# macOS
+.DS_Store
+.AppleDouble
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# Jupyter
+.jupyter/
+
+# Environment
+.env
+venv/
+*.egg-info/
+
+# Data (if you don't want raw .wav files tracked)
+# Data/
