@@ -10,7 +10,8 @@
   <img alt="Python" src="https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white"/>
   <img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-2.x-EE4C2C?logo=pytorch&logoColor=white"/>
   <img alt="License" src="https://img.shields.io/badge/License-MIT-green"/>
-  <img alt="Test Accuracy" src="https://img.shields.io/badge/Test%20Accuracy-97.3%25-brightgreen"/>
+  <img alt="FNO Test Accuracy" src="https://img.shields.io/badge/FNO%20Test%20Accuracy-97.5%25-brightgreen"/>
+  <img alt="CNN Test Accuracy" src="https://img.shields.io/badge/CNN%20Test%20Accuracy-96.0%25-blue"/>
   <img alt="Classes" src="https://img.shields.io/badge/Classes-5-orange"/>
 </p>
 
@@ -66,7 +67,7 @@ Linear Classifier     ← 5-class logits
 
 $$\hat{\mathbf{y}}_{b,o,k} = \sum_{i} \hat{\mathbf{x}}_{b,i,k} \cdot \hat{W}_{i,o,k}, \quad k = 0, \ldots, M-1$$
 
-Only the $M = 20$ lowest-frequency Fourier modes are retained — a band-limited inductive bias matching the sub-1 kHz frequency content of cardiac acoustics.
+$M = 150$ Fourier modes are retained — covering the diagnostically relevant cardiac frequency band up to ~1 kHz at 22,050 Hz sample rate.
 
 **Physiological Frequency Mask** — a learnable filter initialized from known S1/S2 physiology and parameterized in logit space to keep weights in $(0, 1)$:
 
@@ -79,7 +80,7 @@ A conventional deep learning baseline using a differentiable log-Mel spectrogram
 ```
 Raw PCG signal
       ↓
-MelSpectrogramLayer   ← STFT → Mel filterbank (64 bins) → log compression
+MelSpectrogramLayer   ← STFT → Mel filterbank (64 bins, n_fft=512, hop=128) → log compression
       ↓
 Conv2D Block × 3      ← [32, 64, 128] channels + BatchNorm + ReLU + MaxPool
       ↓
@@ -118,31 +119,42 @@ The hinge form of the frequency hierarchy loss applies **zero gradient** when th
 
 | Model | Best Val Acc | Test Acc | Convergence |
 |-------|-------------|----------|-------------|
-| **FNO (physio-constrained)** | 98.00% | **97.33%** | Epoch 30 |
-| CNN Baseline (Mel spectrogram) | 98.67% | **97.33%** | Epoch 20 |
+| **FNO (physio-constrained)** | **98.50%** | **97.50%** | Epoch 40 |
+| CNN Baseline (Mel spectrogram) | 99.50% | 96.00% | Epoch 30 |
 
-Both models achieve **97.3% test accuracy** on 150 held-out recordings (N = 1000 total, 70/15/15 split). The FNO converges more slowly (spectral operations add computational cost per epoch) but reaches equivalent accuracy with stronger physiological grounding.
+The FNO achieves **+1.5 percentage points** higher test accuracy than the CNN despite a lower best validation accuracy, indicating better generalisation from the physiological inductive biases. The CNN overfits more aggressively (val acc 99.5% vs test acc 96.0%), while the FNO's constrained training produces a smaller generalisation gap.
 
 ### Confusion Matrices
 
 <p align="center">
   <img src="Results/confusion_matrices.png" alt="Confusion Matrices" width="85%"/>
   <br>
-  <em>Normalized confusion matrices for FNO (left) and CNN baseline (right) on the test set.</em>
+  <em>Normalized confusion matrices for FNO (left) and CNN baseline (right) on the test set (N=200).</em>
 </p>
 
-**FNO per-class metrics (test set):**
+**FNO per-class metrics (test set, N=200):**
 
 | Class | Precision | Recall | F1 | Support |
 |-------|-----------|--------|----|---------|
-| AS | 1.00 | 0.97 | 0.98 | 32 |
-| MR | 0.85 | 1.00 | 0.92 | 22 |
-| MS | 1.00 | 1.00 | 1.00 | 39 |
-| MVP | 1.00 | 0.97 | 0.98 | 29 |
-| Normal | 1.00 | 0.93 | 0.96 | 28 |
-| **Macro avg** | **0.97** | **0.97** | **0.97** | **150** |
+| AS | 1.00 | 1.00 | 1.00 | 37 |
+| MR | 0.88 | 0.97 | 0.92 | 31 |
+| MS | 0.98 | 1.00 | 0.99 | 44 |
+| MVP | 1.00 | 0.98 | 0.99 | 46 |
+| Normal | 1.00 | 0.93 | 0.96 | 42 |
+| **Macro avg** | **0.97** | **0.97** | **0.97** | **200** |
 
-MS achieves perfect classification (F1 = 1.00). MR has the lowest precision (0.85), reflecting its spectral overlap with other murmur classes — a clinically known diagnostic challenge.
+**CNN per-class metrics (test set, N=200):**
+
+| Class | Precision | Recall | F1 | Support |
+|-------|-----------|--------|----|---------|
+| AS | 0.92 | 0.89 | 0.90 | 37 |
+| MR | 0.91 | 1.00 | 0.95 | 31 |
+| MS | 1.00 | 0.98 | 0.99 | 44 |
+| MVP | 0.96 | 1.00 | 0.98 | 46 |
+| Normal | 1.00 | 0.93 | 0.96 | 42 |
+| **Macro avg** | **0.96** | **0.96** | **0.96** | **200** |
+
+AS achieves perfect FNO classification (F1 = 1.00) compared to 0.90 for the CNN — a clinically significant improvement for Aortic Stenosis, where early detection is critical. MR has the lowest FNO precision (0.88), reflecting its spectral overlap with other murmur classes — a clinically known diagnostic challenge.
 
 ### Learned Physiological Frequency Mask
 
@@ -152,7 +164,7 @@ MS achieves perfect classification (F1 = 1.00). MR has the lowest precision (0.8
   <em>Post-training mask weights per Fourier mode. The model autonomously recovers the physiological S1 (blue) and S2 (red) frequency bands from data, while also discovering additional discriminative modes beyond the initialization prior.</em>
 </p>
 
-After training, the mask weights confirm the physiological prior: S1 and S2 band modes retain high weights, while non-cardiac modes remain suppressed. Modes outside the initialized bands that grew in weight correspond to murmur frequencies — discovered autonomously by the network. This provides **direct clinical interpretability** without requiring post-hoc attribution methods.
+After training, the mask weights confirm the physiological prior: S1 band modes (25–45 Hz) retain mean weight 1.000, while non-cardiac modes remain suppressed at 0.1. Modes outside the initialized bands that grew in weight correspond to murmur frequencies — discovered autonomously by the network. This provides **direct clinical interpretability** without requiring post-hoc attribution methods.
 
 ### t-SNE Latent Space
 
@@ -168,11 +180,11 @@ The t-SNE visualization shows well-separated clusters for all five classes, with
 
 ## Dataset
 
-- **N = 1000** PCG recordings across 5 classes
+- **N = 1000** PCG recordings across 5 classes (~200 per class)
 - **Sample rate**: 22,050 Hz
 - **Window**: 3.0 s (66,150 samples); shorter recordings are zero-padded, longer are trimmed
 - **Amplitude normalization**: each recording scaled to $[-1, 1]$
-- **Split**: 70% train / 15% val / 15% test (fixed seed 42)
+- **Split**: 60% train / 20% val / 20% test (fixed seed 42), giving 600 / 200 / 200 recordings
 
 Duration statistics of the raw recordings:
 - Min: 1.16 s | Max: 3.99 s | Mean: 2.44 ± 0.36 s
@@ -234,7 +246,7 @@ jupyter notebook heart_sound_fno_classifier.ipynb
 | `sample_rate` | 22,050 Hz | Uniform resampling rate |
 | `signal_length` | 66,150 | Samples per recording (3.0 s) |
 | `fno_width` | 64 | FNO channel width |
-| `fno_modes` | 20 | Retained Fourier modes |
+| `fno_modes` | 150 | Retained Fourier modes |
 | `fno_depth` | 4 | Number of FNO blocks |
 | `s1_band` | [25, 45] Hz | S1 heart sound initialization band |
 | `s2_band` | [50, 70] Hz | S2 heart sound initialization band |
@@ -263,11 +275,11 @@ This work applies the same design principles used in scientific machine learning
 If you use this code or dataset in your research, please cite:
 
 ```bibtex
-@misc{heartsound_fno_2025,
+@misc{heartsound_fno_2026,
   title     = {PI-FNO: Physics-Informed Fourier Neural Operator for Cardiac Disease Detection},
   year      = {2026},
   note      = {GitHub repository},
-  url       = {https:https://github.com/miladshirani/PI-FNO}
+  url       = {https://github.com/miladshirani/PI-FNO}
 }
 ```
 
@@ -276,7 +288,6 @@ If you use this code or dataset in your research, please cite:
 ## License
 
 This project is released under the MIT License.
-
 
 ---
 
